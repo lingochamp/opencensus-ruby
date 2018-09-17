@@ -394,7 +394,7 @@ module OpenCensus
         @links = []
         @status_code = nil
         @status_message = nil
-        @stack_trace = caller_locations(skip_frames + 2)
+        @stack_trace = []
       end
 
       ##
