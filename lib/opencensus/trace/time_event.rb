@@ -31,7 +31,7 @@ module OpenCensus
       # @private
       #
       def initialize time: nil
-        @time = time || ::Time.now.utc
+        @time = time || ::Time.now
       end
     end
   end

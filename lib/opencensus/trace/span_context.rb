@@ -64,7 +64,7 @@ module OpenCensus
             new trace_data, nil, trace_context.span_id,
                 same_process_as_parent
           else
-            trace_id = rand 1..MAX_TRACE_ID
+            trace_id = rand(MAX_TRACE_ID) + 1
             trace_id = trace_id.to_s(16).rjust(32, "0")
             trace_data = TraceData.new trace_id, 0, {}
             new trace_data, nil, "", nil
@@ -155,6 +155,7 @@ module OpenCensus
         else
           @trace_data.trace_options &= ~1
         end
+        @set_sampled = true
       end
 
       ##
@@ -183,11 +184,13 @@ module OpenCensus
       #     set span attributes and create children.
       #
       def start_span name, kind: nil, skip_frames: 0, sampler: nil
+        unless @set_sampled && !sampler
+          sampler ||= OpenCensus::Trace.config.default_sampler
+          sampled = sampler.call span_context: self
+          self.sampled = sampled
+        end
         child_context = create_child
-        sampler ||= OpenCensus::Trace.config.default_sampler
-        sampled = sampler.call span_context: self
         span = SpanBuilder.new child_context, skip_frames: skip_frames + 1
-        self.sampled = sampled
         span.name = name
         span.kind = kind if kind
         span.start!
@@ -339,7 +342,7 @@ module OpenCensus
       #
       def create_child
         loop do
-          child_span_id = rand 1..MAX_SPAN_ID
+          child_span_id = rand(MAX_SPAN_ID) + 1
           child_span_id = child_span_id.to_s(16).rjust(16, "0")
           unless @trace_data.span_map.key? child_span_id
             return SpanContext.new @trace_data, self, child_span_id, true

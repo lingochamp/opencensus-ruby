@@ -158,7 +158,7 @@ module OpenCensus
       #
       def start!
         raise "Span already started" unless start_time.nil?
-        @start_time = Time.now.utc
+        @start_time = Time.now
         self
       end
 
@@ -170,7 +170,7 @@ module OpenCensus
       def finish!
         raise "Span not yet started" if start_time.nil?
         raise "Span already finished" unless end_time.nil?
-        @end_time = Time.now.utc
+        @end_time = Time.now
         self
       end
 
@@ -205,7 +205,7 @@ module OpenCensus
       #     the current time.
       #
       def put_annotation description, attributes = {}, time: nil
-        time ||= Time.now.utc
+        time ||= Time.now
         annotation = AnnotationBuilder.new time, description, attributes
         @annotations << annotation
         self
@@ -231,7 +231,7 @@ module OpenCensus
       #
       def put_message_event type, id, uncompressed_size,
                             compressed_size: nil, time: nil
-        time ||= Time.now.utc
+        time ||= Time.now
         message_event =
           MessageEventBuilder.new time, type, id, uncompressed_size,
                                   compressed_size
